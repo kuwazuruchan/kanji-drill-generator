@@ -190,10 +190,16 @@
   .readingHint{
     font-size:13px; color:#888; letter-spacing:1px;
   }
-  .answerKey{
-    margin-top:10px; font-size:9px; color:#aaa; line-height:1.6;
-    border-top:1px dashed var(--line); padding-top:4px;
+  .answerList{
+    display:grid; grid-template-columns: repeat(2, 1fr); gap:2px 28px;
   }
+  .answerRow{
+    display:flex; align-items:baseline; gap:10px;
+    padding:8px 0; border-bottom:1px dashed var(--line);
+  }
+  .answerNum{ width:22px; font-size:12px; color:#999; flex:none; }
+  .answerWord{ font-size:18px; font-weight:bold; color:var(--navy); }
+  .answerReading{ font-size:13px; color:#777; }
 
   @media print{
     body{ background:#fff; }
@@ -632,24 +638,25 @@ function buildTestHtml(kanji, allWords, wrongOnly){
   const repeatPerWord = wrongOnly ? 3 : 1;
 
   let n = 0;
-  const testRowsHtml = words.map(w =>
-    Array.from({length: repeatPerWord}).map(() => {
+  const numbered = [];
+  words.forEach(w => {
+    for(let i = 0; i < repeatPerWord; i++){
       n++;
-      return `
+      numbered.push({n, word:w.word, reading:w.reading, def:w.def});
+    }
+  });
+
+  const testRowsHtml = numbered.map(r => `
         <div class="testRow">
-          <div class="testNum">${n}</div>
-          <div class="testMeaning">${w.def}</div>
+          <div class="testNum">${r.n}</div>
+          <div class="testMeaning">${r.def}</div>
           <div class="testAnswer">
-            <div class="testWord">${blankBoxes(w.word.length)}</div>
-            <div class="readingHint">（${w.reading}）</div>
+            <div class="testWord">${blankBoxes(r.word.length)}</div>
+            <div class="readingHint">（${r.reading}）</div>
           </div>
-        </div>`;
-    }).join("")
-  ).join("");
+        </div>`).join("");
 
-  const answerKey = words.map(w => `${w.word}（${w.reading}）`).join("　");
-
-  return `
+  const testSheet = `
     <div class="sheet">
       <div class="sheetHead">
         <div class="sheetTitle"><b>漢字れんしゅうプリント</b><br>${kanji ? kanji+"　" : ""}${mode}</div>
@@ -658,10 +665,29 @@ function buildTestHtml(kanji, allWords, wrongOnly){
 
       <div class="practiceLabel">意味を読んで、熟語の漢字を書こう</div>
       <div class="testList">${testRowsHtml}</div>
-
-      <div class="answerKey">【保護者用こたえ】${answerKey}</div>
     </div>
   `;
+
+  const answerRowsHtml = numbered.map(r => `
+        <div class="answerRow">
+          <span class="answerNum">${r.n}</span>
+          <span class="answerWord">${r.word}</span>
+          <span class="answerReading">（${r.reading}）</span>
+        </div>`).join("");
+
+  const answerSheet = `
+    <div class="sheet">
+      <div class="sheetHead">
+        <div class="sheetTitle"><b>漢字れんしゅうプリント</b><br>${kanji ? kanji+"　" : ""}${mode}　こたえ</div>
+        <div class="sheetMeta">保護者用</div>
+      </div>
+
+      <div class="practiceLabel">こたえ</div>
+      <div class="answerList">${answerRowsHtml}</div>
+    </div>
+  `;
+
+  return {test: testSheet, answer: answerSheet};
 }
 
 function renderTraceSheet(){
@@ -672,12 +698,12 @@ function renderTraceSheet(){
 
 function renderSheet(wrongOnly){
   const d = readForm();
-  const html = buildTestHtml(null, d.words, wrongOnly);
-  if(!html){
+  const built = buildTestHtml(null, d.words, wrongOnly);
+  if(!built){
     alert("✕チェックがついた熟語がありません。表の左端にチェックを入れてください。");
     return;
   }
-  document.getElementById("sheetWrap").innerHTML = html;
+  document.getElementById("sheetWrap").innerHTML = built.test + built.answer;
   document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
 }
 
@@ -688,13 +714,14 @@ function batchRender(kind){
     alert("まとめて印刷する漢字にチェックを入れてください。");
     return;
   }
-  const parts = keys.map(k => {
-    const p = PRESETS[k];
-    return kind === "trace"
-      ? buildTraceHtml({kanji:k, ...p})
-      : buildTestHtml(k, p.words, false);
-  }).filter(Boolean);
-  document.getElementById("sheetWrap").innerHTML = parts.join("");
+  if(kind === "trace"){
+    const parts = keys.map(k => buildTraceHtml({kanji:k, ...PRESETS[k]}));
+    document.getElementById("sheetWrap").innerHTML = parts.join("");
+  } else {
+    const built = keys.map(k => buildTestHtml(k, PRESETS[k].words, false)).filter(Boolean);
+    document.getElementById("sheetWrap").innerHTML =
+      built.map(b => b.test).join("") + built.map(b => b.answer).join("");
+  }
   document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
 }
 
@@ -706,8 +733,8 @@ function poolRandomTest(){
     return;
   }
   const pool = keys.flatMap(k => PRESETS[k].words.map(w => ({...w})));
-  const html = buildTestHtml("ランダム総合", pool, false);
-  document.getElementById("sheetWrap").innerHTML = html;
+  const built = buildTestHtml("ランダム総合", pool, false);
+  document.getElementById("sheetWrap").innerHTML = built.test + built.answer;
   document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
 }
 
