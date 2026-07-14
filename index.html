@@ -88,12 +88,18 @@
     width:44px; height:44px; font-size:20px; cursor:pointer; color:var(--navy);
   }
   button.presetBtn.active{ background:var(--navy); color:#fff; border-color:var(--navy); }
+  .presetItem{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .presetItem .presetChk{ width:16px; height:16px; cursor:pointer; }
+  .batchBar{
+    display:flex; align-items:center; gap:10px; margin-top:10px;
+    padding-top:10px; border-top:1px dashed var(--line);
+  }
 
   .checkCol{ width:40px; text-align:center; }
   .hint{ font-size:12px; color:#888; margin-top:4px; }
 
   /* ---- printable sheet ---- */
-  #sheetWrap{ display:flex; justify-content:center; }
+  #sheetWrap{ display:flex; flex-direction:column; align-items:center; gap:24px; }
   .sheet{
     background:#fff;
     width: 210mm;
@@ -104,8 +110,8 @@
   .sheetHead{
     display:flex; justify-content:space-between; align-items:flex-start;
     border-bottom: 2px solid var(--navy);
-    padding-bottom:8px;
-    margin-bottom:14px;
+    padding-bottom:6px;
+    margin-bottom:10px;
   }
   .sheetTitle{ font-size:14px; color:#555; }
   .sheetTitle b{ color:var(--navy); font-size:16px; }
@@ -161,39 +167,40 @@
   }
   .meaningBox .lbl{ color:var(--navy); font-weight:bold; }
 
-  .practiceLabel{ font-size:16px; color:var(--navy); font-weight:800; margin:4px 0 8px; }
+  .practiceLabel{ font-size:14px; color:var(--navy); font-weight:800; margin:2px 0 5px; }
 
-  .testList{ margin-bottom:10px; }
+  .testList{ margin-bottom:6px; }
   .testRow{
-    display:flex; align-items:center; gap:14px;
-    padding:10px 0; border-bottom:1px dashed var(--line);
+    display:flex; align-items:center; gap:10px;
+    padding:5px 0; border-bottom:1px dashed var(--line);
   }
-  .testNum{ width:20px; font-size:12px; color:#999; flex:none; }
-  .testMeaning{ width:220px; font-size:12.5px; color:#333; line-height:1.5; flex:none; }
-  .testAnswer{ display:flex; align-items:center; gap:10px; flex:1; }
+  .testNum{ width:16px; font-size:11px; color:#999; flex:none; }
+  .testMeaning{ width:270px; font-size:11.5px; color:#333; line-height:1.35; flex:none; }
+  .testAnswer{ display:flex; align-items:center; gap:8px; flex:1; }
   .testWord{ display:flex; }
   .charBox{
-    width:34px; height:34px;
+    width:28px; height:28px;
     border:1px solid var(--line);
     display:flex; align-items:center; justify-content:center;
-    font-size:16px; color:#333;
+    font-size:14px; color:#333;
     margin-right:-1px;
     position:relative;
     background:#fff;
   }
   .readingHint{
-    font-size:15px; color:#888; letter-spacing:1px;
+    font-size:13px; color:#888; letter-spacing:1px;
   }
   .answerKey{
-    margin-top:18px; font-size:10px; color:#aaa;
-    border-top:1px dashed var(--line); padding-top:6px;
+    margin-top:10px; font-size:9px; color:#aaa; line-height:1.6;
+    border-top:1px dashed var(--line); padding-top:4px;
   }
 
   @media print{
     body{ background:#fff; }
     .app > .panel, .app h1, .app .sub, #controls{ display:none !important; }
     #sheetWrap{ display:block; }
-    .sheet{ box-shadow:none; width:auto; min-height:auto; padding:0; margin:0; }
+    .sheet{ box-shadow:none; width:auto; min-height:auto; padding:0; margin:0; page-break-after:always; }
+    .sheet:last-child{ page-break-after:auto; }
     @page{ size:A4; margin:12mm; }
   }
 </style>
@@ -205,7 +212,16 @@
 
   <div class="panel" id="controls">
     <h2>保存済みの漢字から選ぶ</h2>
+    <div class="hint" style="margin-bottom:8px">クリック＝編集する漢字を切り替え。チェック＝まとめて印刷する漢字を選択。</div>
     <div class="row" id="presetRow"></div>
+    <div class="batchBar">
+      <button class="ghost" onclick="selectAllPresets(true)">全部チェック</button>
+      <button class="ghost" onclick="selectAllPresets(false)">チェックを外す</button>
+      <button class="action" onclick="batchRender('trace')">選んだ漢字の書き方シートをまとめて作成</button>
+      <button class="action" onclick="batchRender('test')">選んだ漢字の熟語テストをまとめて作成</button>
+      <button class="action warn" onclick="poolRandomTest()">選んだ漢字をシャッフルして1枚のランダムテストを作成</button>
+    </div>
+    <div class="hint">熟語テストは作成のたびに出題順が自動でシャッフルされます。</div>
 
     <h2>① 漢字の基本情報</h2>
     <div class="row">
@@ -361,18 +377,169 @@ const PRESETS = {
       {word:"喜捨", reading:"きしゃ", def:"神仏にささげたり、人に寄付したりすること。"},
     ]
   },
+  "展": {
+    onyomi:"テン", kunyomi:"", strokes:"10画", radical:"尸",
+    order:"一,コ,尸,尸,屏,屈,展,展,展,展",
+    meaning:"広げる。平らにのばす。広げてならべる。広がる。さかんになる。",
+    words:[
+      {word:"展開", reading:"てんかい", def:"次々とくり広げる。新しい方向が開ける。"},
+      {word:"展望", reading:"てんぼう", def:"遠くまで見わたす。将来を広く見通す。"},
+      {word:"展覧会", reading:"てんらんかい", def:"人に見てもらうため作品をならべ示す会。"},
+      {word:"展示会", reading:"てんじかい", def:"品物や作品をならべ、多くの人に見せる会。"},
+      {word:"進展", reading:"しんてん", def:"事態が新しい方向へ進んで広がっていくこと。"},
+      {word:"発展", reading:"はってん", def:"勢いがよくなり、広がっていくこと。栄えること。"},
+    ]
+  },
+  "討": {
+    onyomi:"トウ", kunyomi:"う-つ", strokes:"10画", radical:"言",
+    order:"一,二,ニ,言,言,言,討,討,討,討",
+    meaning:"うつ。せめる。問いただす。たずねる。調べる。",
+    words:[
+      {word:"征討", reading:"せいとう", def:"したがわない者を武力でうちはたすこと。"},
+      {word:"討伐", reading:"とうばつ", def:"兵を出して手向かうものをせめほろぼすこと。"},
+      {word:"追討", reading:"ついとう", def:"敵を追ってうちたおすこと。"},
+      {word:"討議", reading:"とうぎ", def:"ある事についてみなが考えを主張しあうこと。"},
+      {word:"討論", reading:"とうろん", def:"ある事について意見をたたかわせること。"},
+      {word:"検討", reading:"けんとう", def:"いろいろな面から十分に調べて研究すること。"},
+    ]
+  },
+  "党": {
+    onyomi:"トウ", kunyomi:"", strokes:"10画", radical:"儿",
+    order:"1,ソ,业,当,尚,尚,党,党,党,党",
+    meaning:"同じ考えを持つ仲間。集まり。政治家の集まり。",
+    words:[
+      {word:"悪党", reading:"あくとう", def:"人の道にそむいた、悪いことをする人のこと。"},
+      {word:"残党", reading:"ざんとう", def:"戦いに負けて少なくなった仲間のこと。"},
+      {word:"徒党", reading:"ととう", def:"ある目的のために集まった仲間のこと。"},
+      {word:"政党", reading:"せいとう", def:"政治について同じ考えを持った人の集まり。"},
+      {word:"党首", reading:"とうしゅ", def:"政党の集まりをまとめる人。政党の代表者。"},
+      {word:"野党", reading:"やとう", def:"政治を行う権力をにぎっていない政党のこと。"},
+    ]
+  },
+  "納": {
+    onyomi:"ノウ・トウ", kunyomi:"おさ-める・おさ-まる", strokes:"10画", radical:"糸",
+    order:"く,幺,糸,糸,糸,約,納,納,納,納",
+    meaning:"おさめる。入れる。しまう。しめくくる。終わりにする。終わり。",
+    words:[
+      {word:"納税", reading:"のうぜい", def:"税金をおさめること。"},
+      {word:"納入", reading:"のうにゅう", def:"品物やお金をおさめること。"},
+      {word:"格納庫", reading:"かくのうこ", def:"大きな物をしまっておく倉庫。"},
+      {word:"収納", reading:"しゅうのう", def:"お金や品物を受け取りおさめる。物をしまう。"},
+      {word:"納会", reading:"のうかい", def:"年末をしめくくる会。取り引き所の月末の会。"},
+      {word:"見納め", reading:"みおさめ", def:"そのものを見る最後の機会。"},
+    ]
+  },
+  "俳": {
+    onyomi:"ハイ", kunyomi:"", strokes:"10画", radical:"イ",
+    order:"ノ,イ,亻,伟,俳,俳,俳,俳,俳,俳",
+    meaning:"役者。おもしろい芸をする人。こっけい。おどけ。たわむれ。俳句の略。",
+    words:[
+      {word:"俳優", reading:"はいゆう", def:"演劇や映画などで演技をする職業。"},
+      {word:"俳句", reading:"はいく", def:"五・七・五の十七音からなる、季語を含む短い詩。"},
+      {word:"俳諧", reading:"はいかい", def:"俳句の源流となった、主に江戸時代に栄えた日本文学作品。"},
+      {word:"俳号", reading:"はいごう", def:"俳句を作る人が俳句をよむとき使う名前。"},
+      {word:"俳人", reading:"はいじん", def:"俳句を専門に作る人のこと。"},
+      {word:"俳壇", reading:"はいだん", def:"俳句を作る人々の社会。俳人の仲間の集まり。"},
+    ]
+  },
+  "班": {
+    onyomi:"ハン", kunyomi:"", strokes:"10画", radical:"王",
+    order:"一,丁,王,王,到,到,珂,班,班,班",
+    meaning:"分けたもの。分けて組になった集まり。分けあたえる。分けてくばる。",
+    words:[
+      {word:"班長", reading:"はんちょう", def:"グループをまとめるいちばん上の責任者。"},
+      {word:"一班", reading:"いっぱん", def:"大きな集団をいくつかに分けたうちの一つ。"},
+      {word:"救護班", reading:"きゅうごはん", def:"病人などを助け、看護・治療するために置かれるグループ。"},
+      {word:"給食班", reading:"きゅうしょくはん", def:"給食の用意をするためのグループ。"},
+      {word:"班員", reading:"はんいん", def:"班を構成している人。"},
+      {word:"班田", reading:"はんでん", def:"国が民に田を分けあたえること。またその田。"},
+    ]
+  },
+  "秘": {
+    onyomi:"ヒ", kunyomi:"ひ-める", strokes:"10画", radical:"禾",
+    order:"丿,二,千,禾,禾,秒,秘,秘,秘,秘",
+    meaning:"ひめる。かくす。人に知らせない。人の力ではよくわからない。おく深くてわからない。",
+    words:[
+      {word:"秘密", reading:"ひみつ", def:"人にかくして知らせない。またその事柄。"},
+      {word:"秘伝", reading:"ひでん", def:"秘密にして特別な人だけに伝える事柄。"},
+      {word:"秘書", reading:"ひしょ", def:"重要な地位にある人の仕事を手伝う人。"},
+      {word:"神秘", reading:"しんぴ", def:"人の力では解き明かせないふしぎなこと。"},
+      {word:"秘境", reading:"ひきょう", def:"人が行ったことがなく知られていない場所。"},
+      {word:"便秘", reading:"べんぴ", def:"おなかに大便がたまっているのに出ないこと。"},
+    ]
+  },
+  "俵": {
+    onyomi:"ヒョウ", kunyomi:"たわら", strokes:"10画", radical:"イ",
+    order:"ノ,イ,亻,俁,俵,俵,俵,俵,俵,俵",
+    meaning:"米や炭を入れるための、わらなどであんだふくろ。たわらに入れた物の量を数える言葉。",
+    words:[
+      {word:"米俵", reading:"こめだわら", def:"米を入れるためのたわら。米が入っているたわら。"},
+      {word:"炭俵", reading:"すみだわら", def:"炭を入れるたわら。炭を入れてあるたわら。"},
+      {word:"土俵", reading:"どひょう", def:"土をつめたたわら。すもうをとる場所。"},
+      {word:"俵物", reading:"たわらもの", def:"たわらづめにしたもの。特に米や海産物。"},
+      {word:"俵", reading:"たわら", def:"わらやカヤであんだ大きなふくろ。"},
+      {word:"一俵", reading:"いっぴょう", def:"たわら一つぶんの物の量。"},
+    ]
+  },
+  "窓": {
+    onyomi:"ソウ", kunyomi:"まど", strokes:"11画", radical:"穴",
+    order:"丶,宀,宀,穴,穴,窓,窓,窓,窓,窓,窓",
+    meaning:"まど。家や学校のこと。",
+    words:[
+      {word:"車窓", reading:"しゃそう", def:"汽車・電車・自動車などのまど。"},
+      {word:"窓外", reading:"そうがい", def:"まどの外。"},
+      {word:"窓辺", reading:"まどべ", def:"まどのそば。まどの所。"},
+      {word:"窓口", reading:"まどぐち", def:"受付や応対、金品の受けわたしをする所。"},
+      {word:"学窓", reading:"がくそう", def:"学問をするところ。学校。"},
+      {word:"同窓会", reading:"どうそうかい", def:"同じ学校を卒業した人たちの集まり。"},
+    ]
+  },
 };
+
+let currentKanji = null;
 
 function renderPresetButtons(){
   const row = document.getElementById("presetRow");
-  row.innerHTML = Object.keys(PRESETS).map(k =>
-    `<button type="button" class="presetBtn" data-k="${k}" onclick="loadPreset('${k}')">${k}</button>`
-  ).join("");
+  row.innerHTML = Object.keys(PRESETS).map(k => `
+    <div class="presetItem">
+      <input type="checkbox" class="presetChk" data-k="${k}">
+      <button type="button" class="presetBtn" data-k="${k}" onclick="loadPreset('${k}')">${k}</button>
+    </div>
+  `).join("");
+}
+
+function selectAllPresets(on){
+  [...document.querySelectorAll(".presetChk")].forEach(c => c.checked = on);
+}
+
+function readForm(){
+  return {
+    kanji: document.getElementById("kanji").value.trim(),
+    onyomi: document.getElementById("onyomi").value.trim(),
+    kunyomi: document.getElementById("kunyomi").value.trim(),
+    strokes: document.getElementById("strokes").value.trim(),
+    radical: document.getElementById("radical").value.trim(),
+    order: document.getElementById("order").value.trim(),
+    meaning: document.getElementById("meaning").value.trim(),
+    words: collectWords(),
+  };
+}
+
+function syncFormToPreset(){
+  if(!currentKanji) return;
+  const d = readForm();
+  PRESETS[currentKanji] = {
+    onyomi: d.onyomi, kunyomi: d.kunyomi, strokes: d.strokes,
+    radical: d.radical, order: d.order, meaning: d.meaning,
+    words: d.words.map(w => ({word:w.word, reading:w.reading, def:w.def})),
+  };
 }
 
 function loadPreset(k){
   const p = PRESETS[k];
   if(!p) return;
+  syncFormToPreset();
+  currentKanji = k;
   document.getElementById("kanji").value = k;
   document.getElementById("onyomi").value = p.onyomi;
   document.getElementById("kunyomi").value = p.kunyomi;
@@ -412,20 +579,21 @@ function blankBoxes(len){
   return Array.from({length: len}).map(() => `<div class="charBox"></div>`).join("");
 }
 
-function renderTraceSheet(){
-  const kanji = document.getElementById("kanji").value.trim();
-  const onyomi = document.getElementById("onyomi").value.trim();
-  const kunyomi = document.getElementById("kunyomi").value.trim();
-  const strokes = document.getElementById("strokes").value.trim();
-  const radical = document.getElementById("radical").value.trim();
-  const order = document.getElementById("order").value.trim();
-  const meaning = document.getElementById("meaning").value.trim();
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
+function buildTraceHtml(d){
   const traceBoxes = Array.from({length:5}, (_,i) =>
-    `<div class="traceBox ${i<2?"":"blank"}"><span>${kanji}</span></div>`
+    `<div class="traceBox ${i<2?"":"blank"}"><span>${d.kanji}</span></div>`
   ).join("");
 
-  const html = `
+  return `
     <div class="sheet">
       <div class="sheetHead">
         <div class="sheetTitle"><b>漢字れんしゅうプリント</b><br>書き方の練習</div>
@@ -433,38 +601,33 @@ function renderTraceSheet(){
       </div>
 
       <div class="topGrid">
-        <div class="kanjiBig">${kanji}</div>
+        <div class="kanjiBig">${d.kanji}</div>
         <div class="infoBox">
-          <span class="lbl">音読み</span>${onyomi || "―"}
-          <span class="lbl">訓読み</span>${kunyomi || "―"}<br>
-          <span class="lbl">画数</span>${strokes || "―"}
-          <span class="lbl">部首</span>${radical || "―"}<br>
-          <span class="lbl">筆順</span>${order || "―"}
+          <span class="lbl">音読み</span>${d.onyomi || "―"}
+          <span class="lbl">訓読み</span>${d.kunyomi || "―"}<br>
+          <span class="lbl">画数</span>${d.strokes || "―"}
+          <span class="lbl">部首</span>${d.radical || "―"}<br>
+          <span class="lbl">筆順</span>${d.order || "―"}
         </div>
       </div>
 
       <div class="practiceLabel">書いてれんしゅうしよう</div>
       <div class="traceRow">${traceBoxes}</div>
 
-      ${meaning ? `<div class="meaningBox"><span class="lbl">意味　</span>${meaning}</div>` : ""}
+      ${d.meaning ? `<div class="meaningBox"><span class="lbl">意味　</span>${d.meaning}</div>` : ""}
     </div>
   `;
-  document.getElementById("sheetWrap").innerHTML = html;
-  document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
 }
 
-function renderSheet(wrongOnly){
-  let words = collectWords();
-
+function buildTestHtml(kanji, allWords, wrongOnly){
+  let words = allWords;
   let mode = "熟語テスト";
   if(wrongOnly){
     words = words.filter(w => w.wrong);
     mode = "まちがい直しテスト";
-    if(words.length === 0){
-      alert("✕チェックがついた熟語がありません。表の左端にチェックを入れてください。");
-      return;
-    }
+    if(words.length === 0) return null;
   }
+  words = shuffle(words);
 
   const repeatPerWord = wrongOnly ? 3 : 1;
 
@@ -486,10 +649,10 @@ function renderSheet(wrongOnly){
 
   const answerKey = words.map(w => `${w.word}（${w.reading}）`).join("　");
 
-  const html = `
+  return `
     <div class="sheet">
       <div class="sheetHead">
-        <div class="sheetTitle"><b>漢字れんしゅうプリント</b><br>${mode}</div>
+        <div class="sheetTitle"><b>漢字れんしゅうプリント</b><br>${kanji ? kanji+"　" : ""}${mode}</div>
         <div class="sheetMeta">なまえ：＿＿＿＿＿＿＿＿＿＿＿＿</div>
       </div>
 
@@ -499,6 +662,51 @@ function renderSheet(wrongOnly){
       <div class="answerKey">【保護者用こたえ】${answerKey}</div>
     </div>
   `;
+}
+
+function renderTraceSheet(){
+  const html = buildTraceHtml(readForm());
+  document.getElementById("sheetWrap").innerHTML = html;
+  document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
+}
+
+function renderSheet(wrongOnly){
+  const d = readForm();
+  const html = buildTestHtml(null, d.words, wrongOnly);
+  if(!html){
+    alert("✕チェックがついた熟語がありません。表の左端にチェックを入れてください。");
+    return;
+  }
+  document.getElementById("sheetWrap").innerHTML = html;
+  document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
+}
+
+function batchRender(kind){
+  syncFormToPreset();
+  const keys = [...document.querySelectorAll(".presetChk")].filter(c => c.checked).map(c => c.dataset.k);
+  if(keys.length === 0){
+    alert("まとめて印刷する漢字にチェックを入れてください。");
+    return;
+  }
+  const parts = keys.map(k => {
+    const p = PRESETS[k];
+    return kind === "trace"
+      ? buildTraceHtml({kanji:k, ...p})
+      : buildTestHtml(k, p.words, false);
+  }).filter(Boolean);
+  document.getElementById("sheetWrap").innerHTML = parts.join("");
+  document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
+}
+
+function poolRandomTest(){
+  syncFormToPreset();
+  const keys = [...document.querySelectorAll(".presetChk")].filter(c => c.checked).map(c => c.dataset.k);
+  if(keys.length === 0){
+    alert("ランダムテストに使う漢字にチェックを入れてください。");
+    return;
+  }
+  const pool = keys.flatMap(k => PRESETS[k].words.map(w => ({...w})));
+  const html = buildTestHtml("ランダム総合", pool, false);
   document.getElementById("sheetWrap").innerHTML = html;
   document.getElementById("sheetWrap").scrollIntoView({behavior:"smooth"});
 }
