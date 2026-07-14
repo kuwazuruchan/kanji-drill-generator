@@ -85,8 +85,9 @@
   }
   button.presetBtn{
     background:#fff; border:1px solid var(--line); border-radius:8px;
-    width:44px; height:44px; font-size:20px; cursor:pointer; color:var(--navy);
+    min-width:44px; height:44px; padding:0 6px; font-size:20px; cursor:pointer; color:var(--navy);
   }
+  button.presetBtn.wide{ font-size:14px; font-weight:bold; }
   button.presetBtn.active{ background:var(--navy); color:#fff; border-color:var(--navy); }
   .presetItem{ display:flex; flex-direction:column; align-items:center; gap:4px; }
   .presetItem .presetChk{ width:16px; height:16px; cursor:pointer; }
@@ -500,6 +501,26 @@ const PRESETS = {
       {word:"同窓会", reading:"どうそうかい", def:"同じ学校を卒業した人たちの集まり。"},
     ]
   },
+  "苦手": {
+    onyomi:"", kunyomi:"", strokes:"", radical:"",
+    order:"", meaning:"",
+    words:[
+      {word:"総じて", reading:"そうじて", def:"全体としてみて。おおよそ。だいたい。"},
+      {word:"形態", reading:"けいたい", def:"物事のありさま・かたち。"},
+      {word:"横領", reading:"おうりょう", def:"人や公共の物を不法に自分のものにすること。"},
+      {word:"領土", reading:"りょうど", def:"国が支配している陸地の範囲。"},
+      {word:"確固", reading:"かっこ", def:"しっかりしていて、迷いなく動じない様子。"},
+      {word:"歴代", reading:"れきだい", def:"何代も続いてきたこと。代々。"},
+      {word:"高潔", reading:"こうけつ", def:"気高く、心がきよらかで私利私欲がないこと。"},
+      {word:"編成", reading:"へんせい", def:"組み合わせて一つのまとまりを作ること。"},
+      {word:"衛兵", reading:"えいへい", def:"見張りや警備をする兵士。"},
+      {word:"国境", reading:"こっきょう", def:"国と国とのさかいめ。"},
+      {word:"衛生", reading:"えいせい", def:"健康を守り、清潔にすること。"},
+      {word:"増産", reading:"ぞうさん", def:"生産する量をふやすこと。"},
+      {word:"精通", reading:"せいつう", def:"あることについてくわしく知っていること。"},
+      {word:"心構え", reading:"こころがまえ", def:"物事に対してあらかじめ心を用意しておくこと。"},
+    ]
+  },
 };
 
 let currentKanji = null;
@@ -509,7 +530,7 @@ function renderPresetButtons(){
   row.innerHTML = Object.keys(PRESETS).map(k => `
     <div class="presetItem">
       <input type="checkbox" class="presetChk" data-k="${k}">
-      <button type="button" class="presetBtn" data-k="${k}" onclick="loadPreset('${k}')">${k}</button>
+      <button type="button" class="presetBtn ${k.length>1?"wide":""}" data-k="${k}" onclick="loadPreset('${k}')">${k}</button>
     </div>
   `).join("");
 }
